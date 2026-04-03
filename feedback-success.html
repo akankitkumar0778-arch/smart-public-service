@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback Successfully Submitted – Public Service Grievance Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1a2d5a;
+      --navy-dark: #0f1e3d;
+      --navy-mid: #253c72;
+      --accent: #2e5fa3;
+      --green: #2a7d4f;
+      --green-light: #e8f5ee;
+      --text: #1a2d5a;
+      --muted: #5a6a8a;
+      --border: #d0d8e8;
+      --bg: #eef1f7;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px;
+      color: var(--text);
+    }
+
+    /* subtle grid pattern on bg */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(26,45,90,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,45,90,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .emblem {
+      width: 72px;
+      height: 72px;
+      filter: drop-shadow(0 2px 6px rgba(26,45,90,0.18));
+    }
+
+    .header h1 {
+      font-family: 'EB Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--navy-dark);
+      letter-spacing: 0.01em;
+      text-align: center;
+    }
+
+    .header-divider {
+      width: 280px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--navy-mid), transparent);
+      margin: 2px 0;
+    }
+
+    .header-sub {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .header-sub span {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      width: 100%;
+      box-shadow:
+        0 1px 3px rgba(0,0,0,0.06),
+        0 8px 32px rgba(26,45,90,0.10),
+        0 0 0 1px rgba(26,45,90,0.06);
+      overflow: hidden;
+      animation: fadeUp 0.7s 0.15s ease both;
+    }
+
+    .card-header {
+      padding: 36px 48px 24px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .success-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--green-light);
+      border: 1.5px solid #a8d9be;
+      border-radius: 100px;
+      padding: 6px 18px 6px 10px;
+      margin-bottom: 18px;
+      animation: popIn 0.5s 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    .success-badge svg {
+      width: 20px; height: 20px;
+      color: var(--green);
+      flex-shrink: 0;
+    }
+
+    .success-badge span {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .card-header h2 {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.85rem;
+      font-weight: 600;
+      color: var(--navy-dark);
+    }
+
+    .card-header p {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Details Grid ── */
+    .details {
+      padding: 0 48px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeRight 0.5s ease both;
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-row:nth-child(1) { animation-delay: 0.3s; }
+    .detail-row:nth-child(2) { animation-delay: 0.4s; }
+    .detail-row:nth-child(3) { animation-delay: 0.5s; }
+    .detail-row:nth-child(4) { animation-delay: 0.6s; }
+
+    .detail-label {
+      min-width: 200px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .detail-value {
+      font-size: 0.95rem;
+      color: var(--navy-dark);
+      font-weight: 600;
+    }
+
+    .detail-value.mono {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--green-light);
+      border: 1.5px solid #a8d9be;
+      border-radius: 100px;
+      padding: 4px 14px 4px 8px;
+    }
+
+    .status-chip svg {
+      width: 17px; height: 17px;
+      color: var(--green);
+    }
+
+    .status-chip span {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    /* ── Feedback Summary ── */
+    .feedback-summary {
+      padding: 20px 48px 0;
+    }
+    .feedback-summary-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .ratings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .rating-card {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .rating-card .rc-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .rating-card .rc-score {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.9rem;
+      font-weight: 600;
+      color: var(--navy-dark);
+      line-height: 1;
+    }
+    .rating-card .rc-score sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 400;
+    }
+    .comment-preview {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      margin-bottom: 4px;
+      display: none;
+    }
+    .comment-preview .cp-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .comment-preview p {
+      font-size: 0.88rem;
+      color: var(--navy);
+      line-height: 1.55;
+      font-style: italic;
+    }
+    .summary-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0 0;
+    }
+
+    /* ── Actions ── */
+    .card-footer {
+      padding: 28px 48px 36px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      animation: fadeUp 0.5s 0.7s ease both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 7px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.93rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      border: 2px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: var(--navy-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26,45,90,0.25);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--navy);
+      border-color: var(--navy);
+    }
+
+    .btn-outline:hover {
+      background: var(--navy);
+      color: var(--white);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26,45,90,0.20);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeRight {
+      from { opacity: 0; transform: translateX(-12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.75); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 600px) {
+      .card-header, .details, .card-footer, .feedback-summary { padding-left: 24px; padding-right: 24px; }
+      .detail-row { flex-direction: column; gap: 4px; }
+      .detail-label { min-width: unset; }
+      .card-footer { flex-direction: column; }
+      .btn { justify-content: center; }
+      .ratings-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <!-- Header -->
+    <div class="header">
+      <h1>Government of India</h1>
+      <div class="header-divider"></div>
+      <div class="header-sub">
+        <span>Ministry of Public Grievances</span>
+        <span>Public Service Grievance Portal</span>
+      </div>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="success-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span>Confirmed</span>
+        </div>
+        <h2>Help us build the India you want to see</h2>
+        <p>Your feedback has been recorded in the system. The concerned department will review it as per established procedures.</p>
+      </div>
+
+      <!-- Feedback Summary -->
+      <div class="feedback-summary" id="feedbackSummary">
+        <div class="feedback-summary-title">Your Feedback Summary</div>
+        <div class="ratings-grid">
+          <div class="rating-card">
+            <div class="rc-label">Complaint Resolution</div>
+            <div class="rc-score" id="scoreResolution">—<sub>/10</sub></div>
+          </div>
+          <div class="rating-card">
+            <div class="rc-label">Officer Behavior</div>
+            <div class="rc-score" id="scoreOfficer">—<sub>/10</sub></div>
+          </div>
+          <div class="rating-card">
+            <div class="rc-label">Portal Experience</div>
+            <div class="rc-score" id="scorePortal">—<sub>/10</sub></div>
+          </div>
+        </div>
+        <div class="comment-preview" id="commentPreview">
+          <div class="cp-label">Your Comments</div>
+          <p id="commentText"></p>
+        </div>
+        <div class="summary-divider"></div>
+      </div>
+
+      <div class="details">
+        <div class="detail-row">
+          <span class="detail-label">Acknowledgement Number:</span>
+          <span class="detail-value mono" id="ackNumber">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date &amp; Time:</span>
+          <span class="detail-value" id="dateTime">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Department Assigned:</span>
+          <span class="detail-value" id="department">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span>
+          <span class="detail-value">
+            <span class="status-chip">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5l-4-4 1.41-1.41L10 13.67l6.59-6.59L18 8.5l-8 8z"/>
+              </svg>
+              <span>Submitted Successfully</span>
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <a href="provide-feedback.html" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Back to Home
+        </a>
+        <a href="#" class="btn btn-outline">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          View Status
+        </a>
+      </div>
+    </div>
+
+  </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      // --- Complaint ID ---
+      try {
+        const complaintData = JSON.parse(localStorage.getItem('currentComplaint') || '{}');
+        const feedbackData  = JSON.parse(localStorage.getItem('feedbackSubmission') || '{}');
+
+        // Ratings
+        if (feedbackData.resolutionRating) document.getElementById('scoreResolution').innerHTML = feedbackData.resolutionRating + '<sub>/10</sub>';
+        if (feedbackData.officerRating)    document.getElementById('scoreOfficer').innerHTML    = feedbackData.officerRating    + '<sub>/10</sub>';
+        if (feedbackData.portalRating)     document.getElementById('scorePortal').innerHTML      = feedbackData.portalRating     + '<sub>/10</sub>';
+
+        // Show first non-empty comment
+        const comment = feedbackData.resolutionComments || feedbackData.officerComments || feedbackData.portalComments || feedbackData.suggestions || '';
+        if (comment.trim()) {
+          document.getElementById('commentText').textContent = comment.trim();
+          document.getElementById('commentPreview').style.display = 'block';
+        }
+
+        // Acknowledgement / Complaint ID
+        document.getElementById('ackNumber').textContent =
+          complaintData.displayId || complaintData.id || 'N/A';
+
+        // Real date & time from feedback submission timestamp (or now)
+        const raw = feedbackData.submittedAt ? new Date(feedbackData.submittedAt) : new Date();
+        document.getElementById('dateTime').textContent = raw.toLocaleString('en-IN', {
+          year: 'numeric', month: 'long', day: 'numeric',
+          hour: '2-digit', minute: '2-digit', hour12: true
+        });
+
+        // Department from complaint data
+        document.getElementById('department').textContent =
+          complaintData.department ||
+          complaintData.departmentName ||
+          complaintData.assignedDepartment ||
+          'Grievance Redressal Section';
+
+      } catch (e) {
+        console.error('Error loading data:', e);
+        document.getElementById('ackNumber').textContent = 'N/A';
+        document.getElementById('dateTime').textContent = new Date().toLocaleString('en-IN', {
+          year: 'numeric', month: 'long', day: 'numeric',
+          hour: '2-digit', minute: '2-digit', hour12: true
+        });
+        document.getElementById('department').textContent = 'Grievance Redressal Section';
+      }
+    });
+  </script>
+</body>
+</html>

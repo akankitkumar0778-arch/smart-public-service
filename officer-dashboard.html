@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Officer Dashboard | Government Grievance System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Hind:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:#0f2a44; --navy-dark:#081a2c; --navy-light:#1a3d5c;
+  --gold:#c8962a; --gold-light:#e8b84b; --red:#c0392b; --green:#1a7a4a;
+  --bg:#eef4fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#dbe6f5;
+}
+body { font-family:'Hind',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* LOGIN */
+#loginScreen { min-height:100vh; background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 50%,var(--navy-light) 100%); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+#loginScreen::before { content:''; position:absolute; width:600px; height:600px; background:radial-gradient(circle,rgba(200,150,42,0.12) 0%,transparent 70%); top:-150px; right:-150px; border-radius:50%; }
+#loginScreen::after  { content:''; position:absolute; width:400px; height:400px; background:radial-gradient(circle,rgba(200,150,42,0.08) 0%,transparent 70%); bottom:-100px; left:-100px; border-radius:50%; }
+.login-card { background:rgba(255,255,255,0.05); backdrop-filter:blur(20px); border:1px solid rgba(200,150,42,0.3); border-radius:16px; padding:50px 45px; width:420px; text-align:center; position:relative; z-index:1; box-shadow:0 30px 80px rgba(0,0,0,0.5); animation:slideUp 0.6s ease; }
+@keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.login-emblem { width:75px; margin-bottom:18px; filter:drop-shadow(0 4px 12px rgba(200,150,42,0.4)); }
+.login-card h1 { font-family:'Rajdhani',sans-serif; font-size:1.7rem; font-weight:700; color:#fff; letter-spacing:1px; line-height:1.2; }
+.login-card h1 span { color:var(--gold-light); }
+.login-card p { color:rgba(255,255,255,0.55); margin:10px 0 35px; font-size:0.95rem; }
+.dept-chips { display:flex; gap:8px; justify-content:center; margin-bottom:28px; flex-wrap:wrap; }
+.dept-chip { background:rgba(255,255,255,0.08); border:1px solid rgba(200,150,42,0.3); color:rgba(255,255,255,0.7); padding:5px 14px; border-radius:20px; font-size:0.82rem; font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:1px; }
+.code-input-wrap input { width:100%; padding:16px 20px; background:rgba(255,255,255,0.08); border:1.5px solid rgba(200,150,42,0.4); border-radius:8px; color:#fff; font-size:1.3rem; font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:6px; text-align:center; text-transform:uppercase; transition:0.3s; margin-bottom:14px; }
+.code-input-wrap input:focus { outline:none; border-color:var(--gold-light); background:rgba(255,255,255,0.12); box-shadow:0 0 0 3px rgba(200,150,42,0.15); }
+.code-input-wrap input::placeholder { letter-spacing:2px; font-size:1rem; color:rgba(255,255,255,0.3); }
+.login-btn { width:100%; padding:15px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); border:none; border-radius:8px; color:var(--navy-dark); font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:2px; cursor:pointer; transition:0.3s; box-shadow:0 4px 20px rgba(200,150,42,0.3); }
+.login-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(200,150,42,0.45); }
+.error-msg { color:#ff6b6b; font-size:0.9rem; margin-top:12px; min-height:20px; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.login-hint { margin-top:28px; padding-top:22px; border-top:1px solid rgba(255,255,255,0.1); font-size:0.82rem; color:rgba(255,255,255,0.35); }
+.login-hint strong { color:rgba(200,150,42,0.7); font-family:'Rajdhani',sans-serif; letter-spacing:1px; }
+
+/* DASHBOARD */
+#dashboard { display:none; }
+.top-bar { background:var(--navy-dark); color:rgba(255,255,255,0.6); padding:8px 30px; display:flex; justify-content:space-between; font-size:0.85rem; }
+.header { background:var(--card); border-bottom:4px solid var(--navy); padding:15px 30px; display:flex; align-items:center; justify-content:space-between; }
+.header-left { display:flex; align-items:center; gap:15px; }
+.header-left img { height:55px; }
+.header-title h1 { font-family:'Rajdhani',sans-serif; font-size:1.5rem; font-weight:700; color:var(--navy); }
+.header-title p { font-size:0.9rem; color:var(--muted); }
+.dept-badge { background:var(--navy); color:#fff; padding:8px 22px; border-radius:25px; font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; letter-spacing:2px; display:flex; align-items:center; gap:8px; }
+.logout-btn { background:transparent; border:1.5px solid var(--navy); color:var(--navy); padding:7px 18px; border-radius:6px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:1px; transition:0.2s; font-size:0.9rem; }
+.logout-btn:hover { background:var(--navy); color:#fff; }
+
+.stats-bar { background:var(--navy); padding:18px 30px; display:flex; }
+.stat-item { flex:1; text-align:center; border-right:1px solid rgba(255,255,255,0.1); padding:4px 0; }
+.stat-item:last-child { border-right:none; }
+.stat-num { font-family:'Rajdhani',sans-serif; font-size:2rem; font-weight:700; color:var(--gold-light); line-height:1; }
+.stat-label { font-size:0.8rem; color:rgba(255,255,255,0.55); margin-top:3px; text-transform:uppercase; letter-spacing:1px; }
+
+.main { max-width:1200px; margin:30px auto; padding:0 25px; }
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.section-header h2 { font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:700; color:var(--navy); }
+.filter-tabs { display:flex; gap:8px; }
+.filter-tab { padding:6px 16px; border-radius:20px; border:1.5px solid var(--border); background:white; color:var(--muted); font-size:0.85rem; font-weight:500; cursor:pointer; transition:0.2s; }
+.filter-tab.active,.filter-tab:hover { background:var(--navy); border-color:var(--navy); color:white; }
+
+/* COMPLAINT CARD */
+.complaint-card { background:var(--card); border-radius:12px; border:1px solid var(--border); padding:22px 25px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:0.25s; animation:fadeIn 0.4s ease both; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.complaint-card:hover { box-shadow:0 6px 20px rgba(15,42,68,0.1); border-color:#b8ceec; transform:translateY(-1px); }
+.complaint-card.resolved { opacity:0.75; border-left:4px solid var(--green); }
+.card-top { display:grid; grid-template-columns:1fr auto; gap:20px; align-items:start; margin-bottom:16px; }
+.card-meta { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+.complaint-id { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.95rem; color:var(--navy); background:var(--bg); padding:3px 10px; border-radius:4px; letter-spacing:1px; }
+.priority-badge { font-size:0.75rem; font-weight:600; padding:2px 10px; border-radius:12px; text-transform:uppercase; }
+.priority-badge.urgent { background:#fde8e8; color:var(--red); }
+.priority-badge.high { background:#fff3e0; color:#e65100; }
+.priority-badge.medium { background:#e8f5e9; color:#2e7d32; }
+.card-date { font-size:0.82rem; color:var(--muted); }
+.card-title { font-size:1rem; font-weight:600; color:var(--text); margin-bottom:5px; }
+.card-desc { font-size:0.9rem; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; overflow:hidden; }
+.card-location { font-size:0.82rem; color:var(--muted); margin-top:5px; }
+
+/* PROGRESS */
+.card-actions { min-width:220px; display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+.progress-wrap { width:100%; }
+.progress-label { display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600; margin-bottom:6px; color:var(--navy); }
+.progress-bar-bg { background:var(--bg); border-radius:10px; height:8px; overflow:hidden; border:1px solid var(--border); }
+.progress-bar-fill { height:100%; border-radius:10px; transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+.fill-0   { width:0%;   background:#cbd5e1; }
+.fill-25  { width:25%;  background:#f59e0b; }
+.fill-50  { width:50%;  background:#3b82f6; }
+.fill-75  { width:75%;  background:#8b5cf6; }
+.fill-100 { width:100%; background:var(--green); }
+.progress-steps { display:flex; gap:3px; margin-top:6px; }
+.step-dot { flex:1; height:4px; border-radius:3px; background:var(--border); transition:0.4s; }
+.step-dot.done { background:var(--gold); }
+.step-dot.resolved-dot { background:var(--green); }
+.status-submitted { color:var(--muted); }
+.status-25 { color:#d97706; }
+.status-50 { color:#3b82f6; }
+.status-75 { color:#7c3aed; }
+.status-resolved { color:var(--green); }
+
+/* 4-STEP JOURNEY TRACK */
+.journey-track {
+  background:#f8fafc; border:1px solid var(--border); border-radius:10px;
+  padding:14px 20px; margin-top:14px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+  position:relative;
+}
+.journey-track::before {
+  content:''; position:absolute;
+  top:29px; left:calc(12.5% + 18px); right:calc(12.5% + 18px);
+  height:3px; background:var(--border); z-index:0;
+}
+
+.jstep { display:flex; flex-direction:column; align-items:center; gap:5px; position:relative; z-index:1; padding:0 4px; }
+.jstep-circle {
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.85rem; font-weight:800;
+  background:#e2e8f0; color:#94a3b8; border:2px solid #e2e8f0;
+  font-family:'Rajdhani',sans-serif; transition:0.3s;
+}
+.jstep.done .jstep-circle    { background:#fef3c7; color:#92400e;  border-color:var(--gold); }
+.jstep.current .jstep-circle { background:#dbeafe; color:#1d4ed8;  border-color:#3b82f6; animation:cpulse 2s ease-in-out infinite; }
+.jstep.resolved-all .jstep-circle { background:#dcfce7; color:var(--green); border-color:var(--green); }
+@keyframes cpulse { 0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.3)} 50%{box-shadow:0 0 0 6px rgba(59,130,246,0)} }
+
+/* connector line colouring */
+.jstep.done + .jstep::before,
+.jstep.resolved-all + .jstep::before {
+  content:''; position:absolute;
+  top:17px; left:-50%; width:100%; height:3px; background:var(--gold); z-index:0;
+}
+.jstep.resolved-all + .jstep.resolved-all::before { background:var(--green); }
+
+.jstep-dept { font-size:0.72rem; font-weight:700; color:var(--navy); text-align:center; line-height:1.3; font-family:'Rajdhani',sans-serif; margin-top:2px; }
+.jstep-head { font-size:0.67rem; color:var(--muted); text-align:center; line-height:1.3; }
+.jstep.current .jstep-dept { color:#1d4ed8; }
+.jstep.pending .jstep-dept { color:#94a3b8; }
+.jstep.pending .jstep-head { color:#cbd5e1; }
+
+.jstep-tag { font-size:0.6rem; font-weight:700; padding:2px 7px; border-radius:8px; text-align:center; margin-top:1px; }
+.tag-done     { background:#fef3c7; color:#92400e; }
+.tag-current  { background:#dbeafe; color:#1d4ed8; }
+.tag-stuck    { background:#fee2e2; color:#991b1b; animation:blink 1s ease-in-out infinite; }
+.tag-resolved { background:#dcfce7; color:var(--green); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* STUCK OFFICER ALERT */
+.stuck-alert {
+  margin-top:12px; padding:10px 16px;
+  border-radius:8px; display:flex; align-items:center; gap:12px; font-size:0.88rem;
+}
+.stuck-alert.warning { background:linear-gradient(135deg,#fff7f7,#ffe4e4); border:1.5px solid #fca5a5; }
+.stuck-alert.success { background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1.5px solid #a5d6a7; }
+.stuck-alert .alert-icon { font-size:1.3rem; flex-shrink:0; }
+.stuck-alert strong { display:block; margin-bottom:2px; }
+.stuck-alert.warning strong { color:#7f1d1d; }
+.stuck-alert.success strong { color:#166534; }
+.stuck-alert span { font-size:0.8rem; color:#64748b; }
+
+.review-btn { padding:10px 20px; border:none; border-radius:7px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:0.95rem; font-weight:700; letter-spacing:1px; transition:0.25s; white-space:nowrap; }
+.review-btn.active { background:linear-gradient(135deg,var(--navy),var(--navy-light)); color:white; box-shadow:0 4px 14px rgba(15,42,68,0.3); }
+.review-btn.active:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(15,42,68,0.4); }
+.review-btn.resolved-btn { background:#e8f5e9; color:var(--green); cursor:default; border:1.5px solid #a5d6a7; }
+.pulse { animation:cardpulse 0.4s ease; }
+@keyframes cardpulse { 0%{transform:scale(1)} 50%{transform:scale(0.97)} 100%{transform:scale(1)} }
+
+.empty-state { text-align:center; padding:60px 20px; color:var(--muted); }
+.empty-state .big-icon { font-size:4rem; margin-bottom:15px; }
+.empty-state h3 { font-family:'Rajdhani',sans-serif; font-size:1.3rem; color:var(--navy); }
+
+.toast { position:fixed; bottom:30px; right:30px; background:var(--navy-dark); color:white; padding:14px 22px; border-radius:8px; font-size:0.95rem; font-weight:500; border-left:4px solid var(--gold-light); box-shadow:0 8px 30px rgba(0,0,0,0.3); z-index:9999; display:none; animation:toastIn 0.3s ease; max-width:380px; }
+@keyframes toastIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+
+.footer { background:var(--navy-dark); color:rgba(255,255,255,0.4); text-align:center; padding:20px; font-size:0.85rem; margin-top:60px; }
+
+@media(max-width:768px) {
+  .card-top { grid-template-columns:1fr; }
+  .card-actions { align-items:flex-start; min-width:auto; }
+  .stats-bar { flex-wrap:wrap; }
+  .stat-item { flex:1 1 50%; }
+  .login-card { width:90%; padding:35px 25px; }
+  .journey-track { grid-template-columns:repeat(2,1fr); gap:12px; }
+  .journey-track::before { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <img class="login-emblem" src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem">
+    <h1>OFFICER <span>ACCESS</span><br>PORTAL</h1>
+    <p>Enter your department access code to proceed</p>
+    <div class="dept-chips">
+      <span class="dept-chip">🚔 POLICE</span>
+      <span class="dept-chip">🏥 HEALTH</span>
+      <span class="dept-chip">🎓 EDUCATION</span>
+      <span class="dept-chip">⚡ MORE</span>
+    </div>
+    <div class="code-input-wrap">
+      <input type="password" id="accessCode" placeholder="Enter Access Code" maxlength="10" autocomplete="off">
+    </div>
+    <button class="login-btn" onclick="handleLogin()">🔐 VERIFY &amp; ENTER</button>
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="login-hint">
+      Demo Codes: <strong>POLICE01</strong> · <strong>HEALTH01</strong> · <strong>EDUCAT01</strong><br>
+      <strong>PUBWRK1</strong> · <strong>WATER01</strong> · <strong>ELECT01</strong>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="top-bar">
+    <span>🔒 Secure Officer Portal &nbsp;|&nbsp; Government of India</span>
+    <span id="topDateTime"></span>
+  </div>
+  <div class="header">
+    <div class="header-left">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem">
+      <div class="header-title">
+        <h1>भारत सरकार | Government of India</h1>
+        <p>Public Service Grievance — Officer Dashboard</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:15px;">
+      <div class="dept-badge"><span id="deptIcon"></span>&nbsp;<span id="deptNameBadge"></span></div>
+      <button class="logout-btn" onclick="logout()">⎋ LOGOUT</button>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
+    <div class="stat-item"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
+    <div class="stat-item"><div class="stat-num" id="statInProgress">0</div><div class="stat-label">In Progress</div></div>
+    <div class="stat-item"><div class="stat-num" id="statResolved">0</div><div class="stat-label">Resolved</div></div>
+    <div class="stat-item"><div class="stat-num" id="statUrgent">0</div><div class="stat-label">Urgent</div></div>
+  </div>
+  <div class="main">
+    <div class="section-header">
+      <h2 id="dashTitle">Complaints</h2>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterComplaints('all',this)">All</button>
+        <button class="filter-tab" onclick="filterComplaints('pending',this)">Pending</button>
+        <button class="filter-tab" onclick="filterComplaints('in-progress',this)">In Progress</button>
+        <button class="filter-tab" onclick="filterComplaints('resolved',this)">Resolved</button>
+      </div>
+    </div>
+    <div id="complaintsContainer"></div>
+  </div>
+  <div class="footer">© 2026 Government of India. All Rights Reserved. &nbsp;|&nbsp; Officer Level: <span id="footerDept"></span></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DEPARTMENT CODES — each has 4 stages with dept name + HOD
+// ============================================================
+const DEPT_CODES = {
+  'POLICE01': {
+    name:'Police', keyword:'Police', icon:'🚔',
+    stages:[
+      { dept:'Police Control Room',       head:'DCP Rajesh Sharma',     role:'Deputy Commissioner of Police',  phone:'+91-11-2233-1001' },
+      { dept:'Local Police Station',      head:'Insp. Sunil Yadav',     role:'Station House Officer (SHO)',    phone:'+91-11-2233-1002' },
+      { dept:'Investigation Unit',        head:'DSP Anita Mehta',       role:'Dy. Superintendent of Police',   phone:'+91-11-2233-1003' },
+      { dept:'Commissioner Office',       head:'CP Vikram Sinha',       role:'Commissioner of Police',         phone:'+91-11-2233-1004' },
+    ]
+  },
+  'HEALTH01': {
+    name:'Healthcare', keyword:'Healthcare', icon:'🏥',
+    stages:[
+      { dept:'PHC / Reception Desk',      head:'Dr. Priya Nair',        role:'Medical Officer In-Charge',      phone:'+91-11-2233-2001' },
+      { dept:'District Health Office',    head:'Dr. Arun Gupta',        role:'District Health Officer (DHO)',   phone:'+91-11-2233-2002' },
+      { dept:'Civil Hospital Review',     head:'Dr. Seema Kapoor',      role:'Civil Surgeon',                  phone:'+91-11-2233-2003' },
+      { dept:'Chief Medical Office',      head:'Dr. Ramesh Rao',        role:'Chief Medical Officer (CMO)',    phone:'+91-11-2233-2004' },
+    ]
+  },
+  'EDUCAT01': {
+    name:'Education', keyword:'Education', icon:'🎓',
+    stages:[
+      { dept:'School Administration',     head:'Mr. Deepak Tiwari',     role:'Head Master / Principal',        phone:'+91-11-2233-3001' },
+      { dept:'Block Education Office',    head:'Ms. Kavita Sharma',     role:'Block Education Officer (BEO)',  phone:'+91-11-2233-3002' },
+      { dept:'District Education Dept',   head:'Mr. Mohit Bansal',      role:'Dist. Education Officer (DEO)',  phone:'+91-11-2233-3003' },
+      { dept:'State Education Board',     head:'Ms. Sunita Verma',      role:'Director of Education',          phone:'+91-11-2233-3004' },
+    ]
+  },
+  'PUBWRK1': {
+    name:'Public Works', keyword:'Public Works', icon:'🏗️',
+    stages:[
+      { dept:'Ward Level PWD Office',     head:'Er. Harish Kumar',      role:'Junior Engineer (JE)',            phone:'+91-11-2233-4001' },
+      { dept:'Sub-Division PWD',          head:'Er. Meena Joshi',       role:'Assistant Engineer (AE)',         phone:'+91-11-2233-4002' },
+      { dept:'Division PWD Office',       head:'Er. Ravi Shankar',      role:'Executive Engineer (EE)',         phone:'+91-11-2233-4003' },
+      { dept:'Chief Engineer Office',     head:'Er. Ashok Mishra',      role:'Chief Engineer (CE), PWD',       phone:'+91-11-2233-4004' },
+    ]
+  },
+  'WATER01': {
+    name:'Water Supply', keyword:'Water Supply', icon:'💧',
+    stages:[
+      { dept:'Water Distribution Zone',   head:'Er. Sundar Lal',        role:'Zone Engineer',                  phone:'+91-11-2233-5001' },
+      { dept:'Sub-Division Water Dept',   head:'Er. Pooja Singh',       role:'Assistant Engineer',             phone:'+91-11-2233-5002' },
+      { dept:'Jal Board Division',        head:'Er. Dinesh Saxena',     role:'Executive Engineer, Jal Board',  phone:'+91-11-2233-5003' },
+      { dept:'Jal Board HQ / MD Office',  head:'Mr. Rajiv Srivastava',  role:'Managing Director, Jal Board',   phone:'+91-11-2233-5004' },
+    ]
+  },
+  'ELECT01': {
+    name:'Electricity', keyword:'Electricity', icon:'⚡',
+    stages:[
+      { dept:'Sub-Station / Field Unit',  head:'Er. Amit Dubey',        role:'Sub-Station In-Charge',          phone:'+91-11-2233-6001' },
+      { dept:'Divisional Office (DISCOM)',head:'Er. Neha Agarwal',      role:'Divisional Engineer',            phone:'+91-11-2233-6002' },
+      { dept:'Circle Office (DISCOM)',    head:'Er. Sanjay Pandey',     role:'Superintending Engineer',        phone:'+91-11-2233-6003' },
+      { dept:'DISCOM Zonal HQ',           head:'Mr. Pawan Khanna',      role:'Chief General Manager, DISCOM',  phone:'+91-11-2233-6004' },
+    ]
+  },
+  'SANIT01': {
+    name:'Sanitation', keyword:'Sanitation', icon:'♻️',
+    stages:[
+      { dept:'Ward Sanitation Office',    head:'Mr. Rampal Gupta',      role:'Sanitation Inspector',           phone:'+91-11-2233-7001' },
+      { dept:'Zone Sanitation Unit',      head:'Ms. Asha Devi',         role:'Zonal Sanitation Officer',       phone:'+91-11-2233-7002' },
+      { dept:'Municipal Health Dept',     head:'Dr. Vinod Saxena',      role:'Health Officer, Municipality',   phone:'+91-11-2233-7003' },
+      { dept:'Commissioner Office',       head:'Mr. Suresh Tripathi',   role:'Municipal Commissioner',         phone:'+91-11-2233-7004' },
+    ]
+  },
+  'TRANS01': {
+    name:'Transportation', keyword:'Transportation', icon:'🚌',
+    stages:[
+      { dept:'Regional Transport Office', head:'Mr. Ajay Rawat',        role:'Motor Vehicle Inspector (MVI)',  phone:'+91-11-2233-8001' },
+      { dept:'District Transport Dept',   head:'Ms. Rekha Bajaj',       role:'District Transport Officer',     phone:'+91-11-2233-8002' },
+      { dept:'State Transport Authority', head:'Mr. Gopal Das',         role:'Regional Transport Commissioner',phone:'+91-11-2233-8003' },
+      { dept:'Transport Secretary Office',head:'Mr. Yogesh Chandra',    role:'Secretary, Transport Dept',      phone:'+91-11-2233-8004' },
+    ]
+  },
+};
+
+// ============================================================
+// DEMO COMPLAINTS
+// ============================================================
+const DEMO_COMPLAINTS = [
+  { id:'CMP100001', category:'Police',       department:'Police',       date:'2026-02-20', status:'submitted', mobile:'9876543210', fullDetails:{ displayId:'CMP100001', title:'Theft reported near market area', description:'A theft incident was reported near the central market. Suspects fled on motorcycle.', location:'Central Market, Sector 4', priority:'Urgent', submittedOn:'20 February 2026, 09:14 AM' }},
+  { id:'CMP100002', category:'Healthcare',   department:'Healthcare',   date:'2026-02-21', status:'submitted', mobile:'9876543210', fullDetails:{ displayId:'CMP100002', title:'Hospital staff negligence complaint', description:'Doctor at district hospital refused to attend emergency patient without prior payment.', location:'District Hospital, Block B', priority:'Urgent', submittedOn:'21 February 2026, 11:30 AM' }},
+  { id:'CMP100003', category:'Education',    department:'Education',    date:'2026-02-22', status:'submitted', mobile:'9876543210', fullDetails:{ displayId:'CMP100003', title:'School mid-day meal not provided', description:'Students have not received mid-day meals for the past 10 days in Government Primary School.', location:'Govt Primary School No.4, Village Rampur', priority:'High', submittedOn:'22 February 2026, 02:05 PM' }},
+  { id:'CMP100004', category:'Electricity',  department:'Electricity',  date:'2026-02-18', status:'submitted', mobile:'9876543210', fullDetails:{ displayId:'CMP100004', title:'Power outage for 3 days', description:'Entire residential colony has had no electricity for 3 consecutive days. No response from helpline.', location:'Colony Block 7, Phase 2', priority:'High', submittedOn:'18 February 2026, 08:00 AM' }},
+  { id:'CMP100005', category:'Water Supply', department:'Water Supply', date:'2026-02-19', status:'submitted', mobile:'9876543210', fullDetails:{ displayId:'CMP100005', title:'Contaminated water supply', description:'Water supply contains yellowish colour and foul smell. Multiple residents fell sick.', location:'Sector 12, Residential Area', priority:'Urgent', submittedOn:'19 February 2026, 07:30 AM' }},
+  { id:'CMP100006', category:'Police',       department:'Police',       date:'2026-02-15', status:'submitted', mobile:'9876543210', fullDetails:{ displayId:'CMP100006', title:'Noise pollution from illegal factory', description:'Illegal factory operating at night causing noise and air pollution in residential zone.', location:'Industrial Pocket, Near School Lane', priority:'Medium', submittedOn:'15 February 2026, 06:45 PM' }},
+  { id:'CMP100007', category:'Education',    department:'Education',    date:'2026-02-10', status:'submitted', mobile:'9876543210', fullDetails:{ displayId:'CMP100007', title:'Teacher absent for 2 weeks', description:'Class 8 mathematics teacher has been absent for over two weeks with no substitute arranged.', location:'Govt Middle School, Ward 5', priority:'Medium', submittedOn:'10 February 2026, 10:00 AM' }},
+  { id:'CMP100008', category:'Healthcare',   department:'Healthcare',   date:'2026-02-17', status:'submitted', mobile:'9876543210', fullDetails:{ displayId:'CMP100008', title:'No medicines available at PHC', description:'Primary Health Centre has been out of essential medicines for 15 days. Patients turned away.', location:'PHC Block, Rural Area Dist-3', priority:'High', submittedOn:'17 February 2026, 03:20 PM' }},
+];
+
+// STATE
+let currentDept = null, allComplaints = [], currentFilter = 'all';
+
+// ============================================================
+// LOGIN
+// ============================================================
+function handleLogin() {
+  const code = document.getElementById('accessCode').value.trim().toUpperCase();
+  const dept = DEPT_CODES[code];
+  if (!dept) {
+    const err = document.getElementById('errorMsg');
+    err.textContent = '❌ Invalid access code. Please try again.';
+    err.style.animation = 'none';
+    setTimeout(() => err.style.animation = 'shake 0.3s ease', 10);
+    return;
+  }
+  currentDept = dept;
+  loadDashboard(dept);
+}
+document.getElementById('accessCode').addEventListener('keypress', e => { if(e.key==='Enter') handleLogin(); });
+
+// ============================================================
+// LOAD DASHBOARD
+// ============================================================
+function loadDashboard(dept) {
+  document.getElementById('deptIcon').textContent      = dept.icon;
+  document.getElementById('deptNameBadge').textContent = dept.name.toUpperCase() + ' DEPT';
+  document.getElementById('dashTitle').textContent     = dept.name + ' Department — Complaints';
+  document.getElementById('footerDept').textContent    = dept.name;
+
+  const stored   = JSON.parse(localStorage.getItem('allComplaints') || '[]');
+  const combined = [...stored, ...DEMO_COMPLAINTS];
+  const seen     = new Set();
+  allComplaints  = combined.filter(c => {
+    if (seen.has(c.id)) return false;
+    seen.add(c.id); return true;
+  }).filter(c =>
+    (c.category||c.department||'').toLowerCase().includes(dept.keyword.toLowerCase()) ||
+    (c.department||'').toLowerCase().includes(dept.keyword.toLowerCase())
+  ).map(c => {
+    const saved = localStorage.getItem('progress_' + c.id);
+    c._progress = saved !== null ? parseInt(saved) : 0;
+    return c;
+  });
+
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display   = 'block';
+  updateStats(); renderComplaints(); startClock();
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function startClock() {
+  function tick() {
+    document.getElementById('topDateTime').textContent =
+      new Date().toLocaleString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  const total    = allComplaints.length;
+  const resolved = allComplaints.filter(c=>c._progress===4).length;
+  const inProg   = allComplaints.filter(c=>c._progress>0&&c._progress<4).length;
+  const pending  = total - resolved - inProg;
+  const urgent   = allComplaints.filter(c=>(c.fullDetails?.priority||'Medium')==='Urgent').length;
+  document.getElementById('statTotal').textContent      = total;
+  document.getElementById('statPending').textContent    = pending;
+  document.getElementById('statInProgress').textContent = inProg;
+  document.getElementById('statResolved').textContent   = resolved;
+  document.getElementById('statUrgent').textContent     = urgent;
+}
+
+// ============================================================
+// BUILD 4-STEP JOURNEY TRACK
+// ============================================================
+function buildJourneyTrack(progress, stages) {
+  const isAllResolved = progress >= 4;
+
+  return `<div class="journey-track">
+    ${stages.map((s, i) => {
+      let cls = 'pending', tag = '', circle = (i+1).toString();
+
+      if (isAllResolved) {
+        cls = 'resolved-all'; circle = '✓';
+        tag = `<div class="jstep-tag tag-resolved">✅ Done</div>`;
+      } else if (i < progress) {
+        cls = 'done'; circle = '✓';
+        tag = `<div class="jstep-tag tag-done">✓ Done</div>`;
+      } else if (i === progress) {
+        cls = 'current';
+        tag = `<div class="jstep-tag tag-stuck">📍 STUCK</div>`;
+      }
+
+      return `<div class="jstep ${cls}">
+        <div class="jstep-circle">${circle}</div>
+        <div class="jstep-dept">${s.dept}</div>
+        <div class="jstep-head">${s.head}</div>
+        ${tag}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ============================================================
+// RENDER COMPLAINTS
+// ============================================================
+function renderComplaints() {
+  const container = document.getElementById('complaintsContainer');
+  let filtered = allComplaints;
+  if (currentFilter==='pending')     filtered = allComplaints.filter(c=>c._progress===0);
+  if (currentFilter==='in-progress') filtered = allComplaints.filter(c=>c._progress>0&&c._progress<4);
+  if (currentFilter==='resolved')    filtered = allComplaints.filter(c=>c._progress===4);
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="big-icon">📋</div><h3>No complaints found</h3><p>No complaints match the current filter.</p></div>`;
+    return;
+  }
+
+  const stages = currentDept.stages;
+  const statusLabels  = ['Submitted','Under Review','In Progress','Under Verification','✅ Resolved'];
+  const statusClasses = ['status-submitted','status-25','status-50','status-75','status-resolved'];
+  const fillClasses   = ['fill-0','fill-25','fill-50','fill-75','fill-100'];
+
+  container.innerHTML = filtered.map((c, i) => {
+    const d          = c.fullDetails || {};
+    const progress   = c._progress || 0;
+    const pct        = progress * 25;
+    const priority   = d.priority || 'Medium';
+    const isResolved = progress === 4;
+
+    // Who currently holds it
+    const stuckStage = stages[Math.min(progress, 3)];
+
+    const alertBox = isResolved
+      ? `<div class="stuck-alert success">
+           <div class="alert-icon">✅</div>
+           <div>
+             <strong>Resolved by: ${stages[3].dept}</strong>
+             <span>Final authority: ${stages[3].head} &nbsp;|&nbsp; ${stages[3].role} &nbsp;|&nbsp; ${stages[3].phone}</span>
+           </div>
+         </div>`
+      : `<div class="stuck-alert warning">
+           <div class="alert-icon">⚠️</div>
+           <div>
+             <strong>${progress===0?'📬 Awaiting intake at:':'📍 Currently with:'} ${stuckStage.dept}</strong>
+             <span>Head Officer: ${stuckStage.head} &nbsp;|&nbsp; ${stuckStage.role} &nbsp;|&nbsp; 📞 ${stuckStage.phone}</span>
+           </div>
+         </div>`;
+
+    const btnLabel = isResolved ? '✅ RESOLVED' : '📋 REVIEW & FORWARD';
+    const btnClass = isResolved ? 'review-btn resolved-btn' : 'review-btn active';
+
+    return `
+    <div class="complaint-card ${isResolved?'resolved':''}" id="card_${c.id}" style="animation-delay:${i*0.05}s">
+      <div class="card-top">
+        <div>
+          <div class="card-meta">
+            <span class="complaint-id">${c.id}</span>
+            <span class="priority-badge ${priority.toLowerCase()}">${priority}</span>
+            <span class="card-date">📅 ${c.date||''}</span>
+          </div>
+          <div class="card-title">${d.title||'Complaint #'+c.id}</div>
+          <div class="card-desc">${d.description||''}</div>
+          ${d.location?`<div class="card-location">📍 ${d.location}</div>`:''}
+        </div>
+        <div class="card-actions">
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span class="${statusClasses[progress]}">${statusLabels[progress]}</span>
+              <span>${pct}%</span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill ${fillClasses[progress]}"></div></div>
+            <div class="progress-steps">
+              <div class="step-dot ${progress>=1?(isResolved?'resolved-dot':'done'):''}"></div>
+              <div class="step-dot ${progress>=2?(isResolved?'resolved-dot':'done'):''}"></div>
+              <div class="step-dot ${progress>=3?(isResolved?'resolved-dot':'done'):''}"></div>
+              <div class="step-dot ${progress>=4?'resolved-dot':''}"></div>
+            </div>
+          </div>
+          <button class="${btnClass}" id="btn_${c.id}"
+            ${isResolved?'disabled':`onclick="advanceProgress('${c.id}')"`}>
+            ${btnLabel}
+          </button>
+        </div>
+      </div>
+
+      ${buildJourneyTrack(progress, stages)}
+      ${alertBox}
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// ADVANCE PROGRESS
+// ============================================================
+function advanceProgress(id) {
+  const c = allComplaints.find(x=>x.id===id);
+  if (!c || c._progress >= 4) return;
+  c._progress += 1;
+  localStorage.setItem('progress_' + id, c._progress);
+
+  const stages = currentDept.stages;
+  const progressToStatus     = ['submitted','in-progress','in-progress','in-progress','resolved'];
+  const progressToStatusFull = ['Submitted','Under Review','In Progress','Under Verification','Resolved'];
+
+  const getActionMsg = p => {
+    if (p === 0) return 'Complaint received. Pending intake.';
+    if (p === 4) return `Issue resolved. Final action by ${stages[3].dept} (${stages[3].head}).`;
+    const s = stages[p-1];
+    return `Forwarded to ${s.dept}. With ${s.head} (${s.role}).`;
+  };
+
+  const newStatus  = progressToStatus[c._progress];
+  const newSFull   = progressToStatusFull[c._progress];
+  const now        = new Date().toLocaleString('en-IN',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+  const actionMsg  = getActionMsg(c._progress);
+  const curStage   = c._progress < 4 ? stages[c._progress] : stages[3];
+
+  // Sync allComplaints in localStorage
+  const stored = JSON.parse(localStorage.getItem('allComplaints') || '[]');
+  const idx    = stored.findIndex(x=>x.id===id);
+  if (idx !== -1) {
+    stored[idx].status    = newStatus;
+    stored[idx]._progress = c._progress;
+    if (stored[idx].fullDetails) {
+      stored[idx].fullDetails.statusFull  = newSFull;
+      stored[idx].fullDetails.lastUpdated = now;
+      stored[idx].fullDetails.actionTaken = actionMsg;
+    }
+    localStorage.setItem('allComplaints', JSON.stringify(stored));
+  }
+
+  // Write status_key for track-complaints & complaint-movement
+  localStorage.setItem('status_' + id, JSON.stringify({
+    progress    : c._progress,
+    status      : newStatus,
+    statusFull  : newSFull,
+    pct         : c._progress * 25,
+    lastUpdated : now,
+    actionTaken : actionMsg,
+    currentDept : curStage.dept,
+    currentHead : curStage.head,
+    currentRole : curStage.role,
+    currentPhone: curStage.phone,
+    allStages   : stages
+  }));
+
+  const toastMsgs = [
+    '',
+    `📋 Step 1 → ${stages[0].dept} (${stages[0].head})`,
+    `🔄 Step 2 → ${stages[1].dept} (${stages[1].head})`,
+    `🔍 Step 3 → ${stages[2].dept} (${stages[2].head})`,
+    `✅ Resolved by ${stages[3].dept}!`
+  ];
+  showToast(toastMsgs[c._progress]);
+
+  document.getElementById('btn_' + id)?.classList.add('pulse');
+  updateStats();
+  setTimeout(() => renderComplaints(), 350);
+}
+
+// ============================================================
+// FILTER / TOAST / LOGOUT
+// ============================================================
+function filterComplaints(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderComplaints();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => { t.style.display='none'; }, 4500);
+}
+
+function logout() {
+  currentDept=null; allComplaints=[]; currentFilter='all';
+  document.getElementById('accessCode').value='';
+  document.getElementById('errorMsg').textContent='';
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+}
+</script>
+</body>
+</html>
